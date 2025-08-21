@@ -1,17 +1,44 @@
-# main.py
+# study-assistant-backend/main.py
+
 from fastapi import FastAPI
-from .routers import auth, files, tutor, payments, flashcards, quizzes
+from dotenv import load_dotenv
+import os
 
-app = FastAPI()
+# Load environment variables from .env file
+load_dotenv()
 
-# Include routers
-app.include_router(auth.router)
-app.include_router(files.router)
-app.include_router(tutor.router)
-app.include_router(payments.router)
-app.include_router(flashcards.router)
-app.include_router(quizzes.router)
+# Import database connections
+from app.db.mongodb import connect_to_mongo, close_mongo_connection
+from app.db.milvus import connect_to_milvus, disconnect_from_milvus
+
+# Import API routers
+from app.api import auth, files, ai, payments
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="AI Study Assistant Backend",
+    description="A backend for generating flashcards, quizzes, and a tutor chat from uploaded documents.",
+    version="1.0.0",
+)
+
+# Connect to databases on startup
+@app.on_event("startup")
+async def startup_event():
+    await connect_to_mongo()
+    await connect_to_milvus()
+
+# Disconnect from databases on shutdown
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_mongo_connection()
+    await disconnect_from_milvus()
+
+# Include API routers
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(files.router, prefix="/api/v1/files", tags=["Files"])
+app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI Services"])
+app.include_router(payments.router, prefix="/api/v1/payments", tags=["Payments"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Study App Backend is running!"}
+    return {"message": "Welcome to the AI Study Assistant API!"}

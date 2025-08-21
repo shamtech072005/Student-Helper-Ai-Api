@@ -1,16 +1,12 @@
---- a/requirements.txt
-+++ b/requirements.txt
-@@ -1,9 +1,9 @@
- fastapi
- uvicorn
- python-multipart
- sqlalchemy
--psycopg2-binary # Replace with mysql-connector-python
-+mysql-connector-python
- pymilvus
- sentence-transformers
- unstructured
- pypdf
- python-docx
- stripe
- razorpay
+# study-assistant-backend/requirements.txt
+
+fastapi
+uvicorn[standard]
+motor
+passlib[bcrypt]
+pyjwt
+python-dotenv
+unstructured
+sentence-transformers
+pymilvus
+stripe
